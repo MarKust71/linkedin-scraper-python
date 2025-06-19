@@ -1,4 +1,5 @@
 # %%
+# INIT
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -18,6 +19,7 @@ from name_utils    import split_name
 driver = webdriver.Chrome()
 
 # %%
+# LOGIN
 driver.get("https://www.linkedin.com/login/pl")
 
 if driver.current_url == "https://www.linkedin.com/login/pl":
@@ -35,14 +37,24 @@ if driver.current_url == "https://www.linkedin.com/login/pl":
         login_button.click()
 
         try:
-            member_profile_block = driver.find_element(By.XPATH, "//div[@class='error-for-password']")
-            raise SystemExit
+            sleep(3)
+            element = driver.find_element(By.ID, "captcha-internal")
+            print("Please complete the exercise to continue.")
+
         except Exception as e:
             pass
 
-driver.get("https://www.linkedin.com/mynetwork/invite-connect/connections")
-
 # %%
+# PRZEJŚCIE DO STRONY Z KONTAKTAMI
+
+# TODO: sprawdzenie, czy jesteśmy zalogowani, ew. przekierowanie do logowania
+try:
+    driver.find_element(By.ID, "global-nav")
+    # idziemy dalej
+except Exception as e:
+    # nie idziemy dalej
+    pass
+
 driver.get("https://www.linkedin.com/mynetwork/invite-connect/connections")
 
 CLASS_CONNECTION_BLOCK = ("_5e590a8c bb062603 _4af99c28 d880256b _9dc9853e f4ee1050 "
@@ -99,6 +111,7 @@ for connection in connections:
 print("****************************")
 
 # %%
+# PRZEJŚCIE DO PROFILI KONTAKTÓW I POBRANIE INFORMACJI KONTAKTOWYCH
 for connection in connections_list:
     profile_url = connection["profile_url"]
     # tworzy nową kartę
