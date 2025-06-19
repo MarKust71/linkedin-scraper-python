@@ -16,6 +16,10 @@ load_dotenv(override=True)
 from contact_utils import parse_contact_info_sections
 from name_utils    import split_name
 
+import psycopg2
+from psycopg2.extras import Json
+from datetime import datetime
+
 driver = webdriver.Chrome()
 
 # %%
@@ -141,6 +145,72 @@ for connection in connections_list:
 
 print("****************************")
 pprint.pprint(connections_list)
+
+
+# %%
+# ——— ZAPIS DO BAZY POSTGRES ———
+# parametrów połączenia nie trzeba wczytywać ponownie, .env jest już załadowane :contentReference[oaicite:1]{index=1}
+DB_HOST     = os.getenv("DB_HOST", "localhost")
+DB_PORT     = os.getenv("DB_PORT", 5432)
+DB_NAME     = os.getenv("DB_NAME", "linkedin_scraper")
+DB_USER     = os.getenv("DB_USER", "postgres")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
+
+conn = psycopg2.connect(
+    host=DB_HOST,
+    port=DB_PORT,
+    dbname=DB_NAME,
+    user=DB_USER,
+    password=DB_PASSWORD
+)
+cur = conn.cursor()
+
+# tworzymy tabelę (jeśli nie istnieje) z dodatkowymi polami na zdjęcie i kontakt_info
+cur.execute("""
+            CREATE TABLE IF NOT EXISTS connections (
+                                                       id             SERIAL PRIMARY KEY,
+                                                       full_name      TEXT,
+                                                       first_name     TEXT,
+                                                       last_name      TEXT,
+                                                       profile_url    TEXT UNIQUE,
+                                                       occupation     TEXT,
+                                                       connected_on   DATE,
+                                                       profile_photo  JSONB,
+                                                       contact_info   JSONB
+            );
+            """)
+conn.commit()
+
+for c in connections_list:
+    # parsowanie daty w formacie "March 10, 2022" lub innego (usuwa "connected on ")
+    try:
+        dt = datetime.strptime(c["connected_on"], "%B %d, %Y").date()
+    except Exception:
+        dt = None
+
+    cur.execute("""
+                INSERT INTO connections
+                (full_name, first_name, last_name, profile_url,
+                 occupation, connected_on, profile_photo, contact_info)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    ON CONFLICT (profile_url) DO NOTHING;
+                """, (
+                    c["full_name"],
+                    c["first_name"],
+                    c["last_name"],
+                    c["profile_url"],
+                    c["occupation"],
+                    dt,
+                    Json(c.get("profile_photo", {})),
+                    Json(c.get("contact_info", {}))
+                ))
+conn.commit()
+
+# zamknięcie połączenia
+cur.close()
+conn.close()
+# ——— KONIEC ZAPISU ———
+
 
 # %%
 try:
