@@ -12,7 +12,49 @@ from time import sleep
 from dotenv import load_dotenv
 load_dotenv(override=True)
 
-# os.environ["EMAIL"], os.environ["PASSWORD"]
+from typing import List, Tuple, Dict, Any
+def parse_contact_info_sections(contact_info_sections: List) -> Tuple[Dict[str, Any], List[str]]:
+    """
+    Parsuje listę sekcji kontaktowych i zwraca:
+      - contact_info: słownik z kluczami 'profile', 'phone', 'email', 'address', 'connected_on'
+      - unhandled: lista nagłówków, których nie obsłużyliśmy
+    """
+    # mapowanie nagłówka -> (klucz w wyniku, funkcja ekstrakcji wartości)
+    extractors = {
+        "Profile":   ("profile",     lambda sec: sec.find("a").text.strip()),
+        "Phone":     ("phone",       lambda sec: sec.find(
+            "span", class_="t-14 t-black t-normal").text.strip().split("\n")),
+        "Website":   ("website",      lambda sec: sec.find(
+            "a", class_="pv-contact-info__contact-link link-without-visited-state")["href"].strip()),
+        "Email":     ("email",       lambda sec: sec.find("a").text.strip()),
+        "Address":   ("address",     lambda sec: sec.find("a").text.strip()),
+        "Connected": ("connected_on",lambda sec: sec.find("span").text.strip()),
+    }
+
+    contact_info: Dict[str, Any] = {}
+    unhandled: List[str] = []
+
+    for section in contact_info_sections:
+        header = section.find("h3").text.strip()
+        if header in extractors:
+            key, extractor = extractors[header]
+            try:
+                value = extractor(section)
+            except Exception as e:
+                # w razie błędu ekstrakcji, zachowaj pustą wartość
+                value = ""
+                print(f"Warning: nie udało się wyciągnąć '{header}': {e}")
+            contact_info[key] = value
+            pprint.pprint(f"{key}: {value}")
+        else:
+            unhandled.append(header)
+
+    pprint.pprint(f"Contact info: {contact_info}")
+    pprint.pprint(f"Unhandled sections: {unhandled}")
+    return contact_info, unhandled
+
+# --- Przykład użycia ---
+# contact_info_dict, leftover = parse_contact_info_sections(contact_info_sections)
 
 driver = webdriver.Chrome()
 
@@ -48,6 +90,8 @@ page_source = driver.page_source
 soup = BeautifulSoup(page_source, "html.parser")
 connections = soup.find_all("div", class_="_023b52d4 c8178b77 debf13c3 _16eb4e30 d2ea9f58 _5de01902 be803eea befb15ce _8e4257fb _47345da6")
 number_of_connections = len(connections)
+
+print("****************************")
 print(f"{number_of_connections} connections found.")
 
 connections_list = []
@@ -68,57 +112,43 @@ for connection in connections:
 
 print(f"Connections:")
 pprint.pprint(connections_list)
+print("****************************")
 
 # %%
-# for connection in connections_list:
-connection = connections_list[0]
-profile_url = connection["profile_url"]
-# tworzy nową kartę
-driver.switch_to.new_window("tab")
-# ładuje URL w tej karcie
-driver.get(profile_url)
+for connection in connections_list:
+# connection = connections_list[0]
+    profile_url = connection["profile_url"]
+    # tworzy nową kartę
+    driver.switch_to.new_window("tab")
+    # ładuje URL w tej karcie
+    driver.get(profile_url)
 
-# ########
-link_contact_info = driver.find_element(By.XPATH, "//a[@id='top-card-text-details-contact-info']")
-# kliknij w link do kontaktów
-link_contact_info.click()
+    # ########
+    link_contact_info = driver.find_element(By.XPATH, "//a[@id='top-card-text-details-contact-info']")
+    # kliknij w link do kontaktów
+    link_contact_info.click()
 
-sleep(2)
-page_source = driver.page_source
-soup = BeautifulSoup(page_source, "html.parser")
-contact_info_sections = soup.find_all("section", class_="pv-contact-info__contact-type")
+    sleep(2)
+    page_source = driver.page_source
+    soup = BeautifulSoup(page_source, "html.parser")
+    contact_info_sections = soup.find_all("section", class_="pv-contact-info__contact-type")
 
-# %%
-for section in contact_info_sections:
-    section_key = section.find("h3").text.strip()
-    section_value = ""
-    if "Profile" in section_key:
-        section_key = "Profile"
-        section_value = section.find("a").text.strip()
+    contact_info_dict, leftover = parse_contact_info_sections(contact_info_sections)
+    connection["contact_info"] = contact_info_dict
 
-    if section_key == "Phone":
-        section_value = section.find("span", class_="t-14 t-black t-normal").text.strip().split("\n")
+    # zamknij zakładkę
+    driver.close()
+    # wróć na pierwszą kartę:
+    driver.switch_to.window(driver.window_handles[0])
 
-    if section_key == "Email":
-        section_value = section.find("a").text.strip()
-
-    if section_key == "Address":
-        section_value = section.find("a").text.strip()
-
-    if section_key == "Connected":
-        section_value = section.find("span").text.strip()
-
-    pprint.pprint(f"{section_key}: {section_value}")
+print("****************************")
+print(f"Connections:")
+pprint.pprint(connections_list)
+print("****************************")
 
 # %%
-# poczekaj chwilę i zamknij okno kontaktów
-driver.close()
-# jeśli chcesz wrócić na pierwszą kartę:
-driver.switch_to.window(driver.window_handles[0])
-
 try:
     button_load_more = driver.find_element(By.XPATH, "//button[@class='c9f1aa60 _6defb001 _6b3820bb _70f3535c _0734b5bd f1d72004 _9e7f7493 dc268ea9 _2f964dfd befb15ce _5b782f55 _584ac2dd']")
     button_load_more.click()
 except Exception as e:
     pass
-
