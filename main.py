@@ -23,7 +23,6 @@ if driver.current_url == "https://www.linkedin.com/login/pl":
     try:
         member_profile_block = driver.find_element(By.XPATH, "//div[@class='member-profile-block']")
         member_profile_block.click()
-        # driver.get("https://www.linkedin.com/mynetwork/invite-connect/connections")
     except Exception as e:
         email_input = driver.find_element(By.ID, "username")
         email_input.send_keys(os.environ["EMAIL"])
@@ -47,8 +46,7 @@ driver.get("https://www.linkedin.com/mynetwork/invite-connect/connections")
 
 page_source = driver.page_source
 soup = BeautifulSoup(page_source, "html.parser")
-
-connections = soup.find_all("div", class_="b76b9936 _0851ab0a _3e3fee64 dcc34198 c9d1147d _600179e5 f0cc5b9e _3b4ac106 d5b92317 _20e28694")
+connections = soup.find_all("div", class_="_023b52d4 c8178b77 debf13c3 _16eb4e30 d2ea9f58 _5de01902 be803eea befb15ce _8e4257fb _47345da6")
 number_of_connections = len(connections)
 print(f"{number_of_connections} connections found.")
 
@@ -56,13 +54,13 @@ connections_list = []
 for connection in connections:
     connection_dict = {}
 
-    name = connection.find("p", class_="_0541da3d _2d70cf55 a70fc434 _07e8f447 f7bf264b _14d9d282 a693b3b8 c53b5656 _66ce3f32 _03c05728").text.strip()
-    profile_link = connection.find("a", class_="fb862af6 _17d1b836")["href"]
-    occupation = connection.find("p", class_="_0541da3d _0794129a bc279ba5 ee91b557 _8938a15c _35fc986b _8827c7f1 _07e8f447 f7bf264b d2350752 a693b3b8 c53b5656 _66ce3f32 _03c05728").text.strip()
-    connected_on = connection.find("p", class_="_0541da3d _0794129a _07e8f447 f7bf264b d2350752 a693b3b8 c53b5656 _43f09794 _03c05728").text.strip().replace("connected on ", "")
+    name = connection.find("a", class_="_70f3535c _5c6933d6").text.strip()
+    profile_url = connection.find("a", class_="_70f3535c _5c6933d6")["href"]
+    occupation = connection.find("p", class_="_45a369a4 _6c195815 _49d9b2aa _849fd8c5 _5e09317b _6b659a00 a48e68ea _067d51df _4e504a32 f7d05a6d _0734b5bd d2b1b593 d52a30d7 _002999fd").text.strip()
+    connected_on = connection.find("p", class_="_45a369a4 _6c195815 _067d51df _4e504a32 f7d05a6d _0734b5bd d2b1b593 _2ddeb6fe _002999fd").text.strip().replace("connected on ", "")
 
     connection_dict['name'] = name
-    connection_dict['profile_link'] = profile_link
+    connection_dict['profile_url'] = profile_url
     connection_dict['occupation'] = occupation
     connection_dict['connected_on'] = connected_on
 
@@ -71,6 +69,56 @@ for connection in connections:
 print(f"Connections:")
 pprint.pprint(connections_list)
 
-button_load_more = driver.find_element(By.XPATH, "//button[@class='_8d0bd381 _6421bf17 _4e62e86f fb862af6 a693b3b8 _730644b3 _55bb4f0b _634316b1 _5d8fda3e _3b4ac106 _67a67a26 b7342f7c']")
-button_load_more.click()
+# %%
+# for connection in connections_list:
+connection = connections_list[0]
+profile_url = connection["profile_url"]
+# tworzy nową kartę
+driver.switch_to.new_window("tab")
+# ładuje URL w tej karcie
+driver.get(profile_url)
+
+# ########
+link_contact_info = driver.find_element(By.XPATH, "//a[@id='top-card-text-details-contact-info']")
+# kliknij w link do kontaktów
+link_contact_info.click()
+
+sleep(2)
+page_source = driver.page_source
+soup = BeautifulSoup(page_source, "html.parser")
+contact_info_sections = soup.find_all("section", class_="pv-contact-info__contact-type")
+
+# %%
+for section in contact_info_sections:
+    section_key = section.find("h3").text.strip()
+    section_value = ""
+    if "Profile" in section_key:
+        section_key = "Profile"
+        section_value = section.find("a").text.strip()
+
+    if section_key == "Phone":
+        section_value = section.find("span", class_="t-14 t-black t-normal").text.strip().split("\n")
+
+    if section_key == "Email":
+        section_value = section.find("a").text.strip()
+
+    if section_key == "Address":
+        section_value = section.find("a").text.strip()
+
+    if section_key == "Connected":
+        section_value = section.find("span").text.strip()
+
+    pprint.pprint(f"{section_key}: {section_value}")
+
+# %%
+# poczekaj chwilę i zamknij okno kontaktów
+driver.close()
+# jeśli chcesz wrócić na pierwszą kartę:
+driver.switch_to.window(driver.window_handles[0])
+
+try:
+    button_load_more = driver.find_element(By.XPATH, "//button[@class='c9f1aa60 _6defb001 _6b3820bb _70f3535c _0734b5bd f1d72004 _9e7f7493 dc268ea9 _2f964dfd befb15ce _5b782f55 _584ac2dd']")
+    button_load_more.click()
+except Exception as e:
+    pass
 
