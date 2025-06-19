@@ -98,13 +98,15 @@ for connection in connections:
 
     first_name, last_name = split_name(full_name)
 
-    connection_dict['full_name'] = full_name
-    connection_dict['first_name'] = first_name
-    connection_dict['last_name'] = last_name
-    connection_dict['profile_url'] = profile_url
-    connection_dict['occupation'] = occupation
-    connection_dict['connected_on'] = connected_on
-    connection_dict['profile_photo'] = dict(src=profile_photo_src, alt=profile_photo_alt)
+    connection_dict.update({
+        "full_name": full_name,
+        "first_name": first_name,
+        "last_name": last_name,
+        "profile_url": profile_url,
+        "occupation": occupation,
+        "connected_on": connected_on,
+        "profile_photo": {"src": profile_photo_src, "alt": profile_photo_alt},
+    })
 
     connections_list.append(connection_dict.copy())
 
