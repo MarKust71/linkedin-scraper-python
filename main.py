@@ -52,6 +52,16 @@ CLASS_CONNECTION_OCCUPATION = ("c90e8693 _66e83a99 _3fdefac7 _242f944e _45d391f2
                                "_0975679c _961dcb74 _695b6b97 _86d42c62 aa362e2d c82cd034")
 CLASS_CONNECTION_CONNECTED = "c90e8693 _66e83a99 _08dd3c9b _0975679c _961dcb74 _695b6b97 _86d42c62 d93572b4 c82cd034"
 
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+classes = CLASS_CONNECTION_BLOCK.split()
+css = "div." + ".".join(classes) + " img"
+WebDriverWait(driver, 20).until(
+    EC.presence_of_all_elements_located((By.CSS_SELECTOR, css))
+)
+
 page_source = driver.page_source
 soup = BeautifulSoup(page_source, "html.parser")
 connections = soup.find_all("div", class_=CLASS_CONNECTION_BLOCK)
@@ -71,19 +81,21 @@ for connection in connections:
                     .text
                     .strip()
                     .replace("connected on ", ""))
+    profile_photo_src = connection.find("img")["src"]
+    profile_photo_alt = connection.find("img")["alt"]
 
     first_name, last_name = split_name(full_name)
+
     connection_dict['full_name'] = full_name
     connection_dict['first_name'] = first_name
     connection_dict['last_name'] = last_name
     connection_dict['profile_url'] = profile_url
     connection_dict['occupation'] = occupation
     connection_dict['connected_on'] = connected_on
+    connection_dict['profile_photo'] = dict(src=profile_photo_src, alt=profile_photo_alt)
 
     connections_list.append(connection_dict.copy())
 
-print(f"Connections:")
-pprint.pprint(connections_list)
 print("****************************")
 
 # %%
@@ -95,7 +107,7 @@ for connection in connections_list:
     driver.get(profile_url)
 
     link_contact_info = driver.find_element(By.XPATH, "//a[@id='top-card-text-details-contact-info']")
-    # klia w link do kontaktów
+    # klika w link do kontaktów
     link_contact_info.click()
 
     sleep(2)
@@ -104,7 +116,7 @@ for connection in connections_list:
     soup = BeautifulSoup(page_source, "html.parser")
     contact_info_sections = soup.find_all("section", class_="pv-contact-info__contact-type")
 
-    contact_info_dict, leftover = parse_contact_info_sections(contact_info_sections)
+    contact_info_dict = parse_contact_info_sections(contact_info_sections)
     connection["contact_info"] = contact_info_dict
 
     # zamknij zakładkę
@@ -113,9 +125,7 @@ for connection in connections_list:
     driver.switch_to.window(driver.window_handles[0])
 
 print("****************************")
-print(f"Connections:")
 pprint.pprint(connections_list)
-print("****************************")
 
 # %%
 try:
