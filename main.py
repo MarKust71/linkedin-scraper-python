@@ -45,9 +45,16 @@ driver.get("https://www.linkedin.com/mynetwork/invite-connect/connections")
 # %%
 driver.get("https://www.linkedin.com/mynetwork/invite-connect/connections")
 
+CLASS_CONNECTION_BLOCK = ("_5e590a8c bb062603 _4af99c28 d880256b _9dc9853e f4ee1050 "
+                          "_4efe9d11 fce0f231 _62ca92a5 dd602475")
+CLASS_CONNECTION_NAME = "afaedf57 _6acc9de9"
+CLASS_CONNECTION_OCCUPATION = ("c90e8693 _66e83a99 _3fdefac7 _242f944e _45d391f2 a5a15547 be3a6b7b _08dd3c9b "
+                               "_0975679c _961dcb74 _695b6b97 _86d42c62 aa362e2d c82cd034")
+CLASS_CONNECTION_CONNECTED = "c90e8693 _66e83a99 _08dd3c9b _0975679c _961dcb74 _695b6b97 _86d42c62 d93572b4 c82cd034"
+
 page_source = driver.page_source
 soup = BeautifulSoup(page_source, "html.parser")
-connections = soup.find_all("div", class_="_023b52d4 c8178b77 debf13c3 _16eb4e30 d2ea9f58 _5de01902 be803eea befb15ce _8e4257fb _47345da6")
+connections = soup.find_all("div", class_=CLASS_CONNECTION_BLOCK)
 number_of_connections = len(connections)
 
 print("****************************")
@@ -57,10 +64,13 @@ connections_list = []
 for connection in connections:
     connection_dict = {}
 
-    full_name = connection.find("a", class_="_70f3535c _5c6933d6").text.strip()
-    profile_url = connection.find("a", class_="_70f3535c _5c6933d6")["href"]
-    occupation = connection.find("p", class_="_45a369a4 _6c195815 _49d9b2aa _849fd8c5 _5e09317b _6b659a00 a48e68ea _067d51df _4e504a32 f7d05a6d _0734b5bd d2b1b593 d52a30d7 _002999fd").text.strip()
-    connected_on = connection.find("p", class_="_45a369a4 _6c195815 _067d51df _4e504a32 f7d05a6d _0734b5bd d2b1b593 _2ddeb6fe _002999fd").text.strip().replace("connected on ", "")
+    full_name = connection.find("a", class_=CLASS_CONNECTION_NAME).text.strip()
+    profile_url = connection.find("a", class_=CLASS_CONNECTION_NAME)["href"]
+    occupation = connection.find("p", class_=CLASS_CONNECTION_OCCUPATION).text.strip()
+    connected_on = (connection.find("p", class_=CLASS_CONNECTION_CONNECTED)
+                    .text
+                    .strip()
+                    .replace("connected on ", ""))
 
     first_name, last_name = split_name(full_name)
     connection_dict['full_name'] = full_name
@@ -78,19 +88,18 @@ print("****************************")
 
 # %%
 for connection in connections_list:
-# connection = connections_list[0]
     profile_url = connection["profile_url"]
     # tworzy nową kartę
     driver.switch_to.new_window("tab")
     # ładuje URL w tej karcie
     driver.get(profile_url)
 
-    # ########
     link_contact_info = driver.find_element(By.XPATH, "//a[@id='top-card-text-details-contact-info']")
-    # kliknij w link do kontaktów
+    # klia w link do kontaktów
     link_contact_info.click()
 
     sleep(2)
+
     page_source = driver.page_source
     soup = BeautifulSoup(page_source, "html.parser")
     contact_info_sections = soup.find_all("section", class_="pv-contact-info__contact-type")
