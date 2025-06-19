@@ -20,6 +20,13 @@ import psycopg2
 from psycopg2.extras import Json
 from datetime import datetime
 
+# parametrów połączenia nie trzeba wczytywać ponownie, .env jest już załadowane :contentReference[oaicite:1]{index=1}
+DB_HOST     = os.getenv("DB_HOST", "localhost")
+DB_PORT     = os.getenv("DB_PORT", 5432)
+DB_NAME     = os.getenv("DB_NAME", "linkedin_scraper")
+DB_USER     = os.getenv("DB_USER", "postgres")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
+
 driver = webdriver.Chrome()
 
 # %%
@@ -86,6 +93,49 @@ number_of_connections = len(connections)
 print("****************************")
 print(f"{number_of_connections} connections found.")
 
+# ——— ODCZYT Z BAZY POSTGRES ———
+conn = psycopg2.connect(
+    host=DB_HOST,
+    port=DB_PORT,
+    dbname=DB_NAME,
+    user=DB_USER,
+    password=DB_PASSWORD
+)
+cur = conn.cursor()
+
+# tworzymy tabelę (jeśli nie istnieje) z dodatkowymi polami na zdjęcie i kontakt_info
+cur.execute("""
+            CREATE TABLE IF NOT EXISTS connections (
+                                                       id             SERIAL PRIMARY KEY,
+                                                       full_name      TEXT,
+                                                       first_name     TEXT,
+                                                       last_name      TEXT,
+                                                       profile_url    TEXT UNIQUE,
+                                                       occupation     TEXT,
+                                                       connected_on   DATE,
+                                                       profile_photo  JSONB,
+                                                       contact_info   JSONB
+            );
+            """)
+conn.commit()
+
+# ——— Dodaj unikalny indeks na contact_info.profile ———
+cur.execute("""
+            CREATE UNIQUE INDEX IF NOT EXISTS unique_contact_profile
+--                ON connections ((contact_info->>'profile'));
+                ON connections (profile_url);
+            """)
+conn.commit()
+
+# cur.execute("SELECT contact_info->>'profile' FROM connections;")
+cur.execute("SELECT profile_url FROM connections;")
+seen_profiles = {row[0] for row in cur.fetchall() if row[0]}
+# zamknięcie połączenia
+cur.close()
+conn.close()
+# ——— KONIEC ODCZYTU ———
+
+
 connections_list = []
 for connection in connections:
     connection_dict = {}
@@ -112,7 +162,8 @@ for connection in connections:
         "profile_photo": {"src": profile_photo_src, "alt": profile_photo_alt},
     })
 
-    connections_list.append(connection_dict.copy())
+    if profile_url not in seen_profiles:
+        connections_list.append(connection_dict.copy())
 
 print("****************************")
 
@@ -149,13 +200,6 @@ pprint.pprint(connections_list)
 
 # %%
 # ——— ZAPIS DO BAZY POSTGRES ———
-# parametrów połączenia nie trzeba wczytywać ponownie, .env jest już załadowane :contentReference[oaicite:1]{index=1}
-DB_HOST     = os.getenv("DB_HOST", "localhost")
-DB_PORT     = os.getenv("DB_PORT", 5432)
-DB_NAME     = os.getenv("DB_NAME", "linkedin_scraper")
-DB_USER     = os.getenv("DB_USER", "postgres")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
-
 conn = psycopg2.connect(
     host=DB_HOST,
     port=DB_PORT,
@@ -165,22 +209,6 @@ conn = psycopg2.connect(
 )
 cur = conn.cursor()
 
-# tworzymy tabelę (jeśli nie istnieje) z dodatkowymi polami na zdjęcie i kontakt_info
-cur.execute("""
-            CREATE TABLE IF NOT EXISTS connections (
-                                                       id             SERIAL PRIMARY KEY,
-                                                       full_name      TEXT,
-                                                       first_name     TEXT,
-                                                       last_name      TEXT,
-                                                       profile_url    TEXT UNIQUE,
-                                                       occupation     TEXT,
-                                                       connected_on   DATE,
-                                                       profile_photo  JSONB,
-                                                       contact_info   JSONB
-            );
-            """)
-conn.commit()
-
 for c in connections_list:
     # parsowanie daty w formacie "March 10, 2022" lub innego (usuwa "connected on ")
     try:
@@ -188,12 +216,13 @@ for c in connections_list:
     except Exception:
         dt = None
 
+    pprint.pprint(c)
     cur.execute("""
                 INSERT INTO connections
                 (full_name, first_name, last_name, profile_url,
                  occupation, connected_on, profile_photo, contact_info)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-                    ON CONFLICT (profile_url) DO NOTHING;
+                ON CONFLICT (profile_url) DO NOTHING;
                 """, (
                     c["full_name"],
                     c["first_name"],
@@ -213,8 +242,12 @@ conn.close()
 
 
 # %%
+CLASS_BUTTON_LOAD_MORE = ("_8986dcdf _7711c173 _3cde6b8b afaedf57 _695b6b97 a71e3076 _4b8e13ff _556fc494 _224a1a2a "
+                          "fce0f231 a368a5d7 _9fe01952")
+
 try:
-    button_load_more = driver.find_element(By.XPATH, "//button[@class='c9f1aa60 _6defb001 _6b3820bb _70f3535c _0734b5bd f1d72004 _9e7f7493 dc268ea9 _2f964dfd befb15ce _5b782f55 _584ac2dd']")
+    button_load_more = driver.find_element(By.XPATH, f"//button[@class='{CLASS_BUTTON_LOAD_MORE}']")
     button_load_more.click()
 except Exception as e:
+    print("No more connections to load or button not found.")
     pass
