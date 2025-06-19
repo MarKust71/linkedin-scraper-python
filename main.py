@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 load_dotenv(override=True)
 
 from typing import List, Tuple, Dict, Any
+
 def parse_contact_info_sections(contact_info_sections: List) -> Tuple[Dict[str, Any], List[str]]:
     """
     Parsuje listę sekcji kontaktowych i zwraca:
@@ -56,6 +57,26 @@ def parse_contact_info_sections(contact_info_sections: List) -> Tuple[Dict[str, 
 # --- Przykład użycia ---
 # contact_info_dict, leftover = parse_contact_info_sections(contact_info_sections)
 
+
+def split_name(full_name: str) -> tuple[str, str]:
+    """
+    Dzieli pełne imię i nazwisko na imię i nazwisko.
+    :param full_name:
+    :return:
+    """
+    parts = full_name.strip().split()
+    if len(parts) > 1:
+        return " ".join(parts[:-1]), parts[-1]
+    else:
+        return parts[0], ""
+
+# --- Przykład użycia ---
+# fn, ln = split_name("Anna Maria Nowak")
+# print(fn)  # "Anna Maria"
+# print(ln)  # "Nowak"
+
+
+
 driver = webdriver.Chrome()
 
 # %%
@@ -98,12 +119,15 @@ connections_list = []
 for connection in connections:
     connection_dict = {}
 
-    name = connection.find("a", class_="_70f3535c _5c6933d6").text.strip()
+    full_name = connection.find("a", class_="_70f3535c _5c6933d6").text.strip()
     profile_url = connection.find("a", class_="_70f3535c _5c6933d6")["href"]
     occupation = connection.find("p", class_="_45a369a4 _6c195815 _49d9b2aa _849fd8c5 _5e09317b _6b659a00 a48e68ea _067d51df _4e504a32 f7d05a6d _0734b5bd d2b1b593 d52a30d7 _002999fd").text.strip()
     connected_on = connection.find("p", class_="_45a369a4 _6c195815 _067d51df _4e504a32 f7d05a6d _0734b5bd d2b1b593 _2ddeb6fe _002999fd").text.strip().replace("connected on ", "")
 
-    connection_dict['name'] = name
+    first_name, last_name = split_name(full_name)
+    connection_dict['full_name'] = full_name
+    connection_dict['first_name'] = first_name
+    connection_dict['last_name'] = last_name
     connection_dict['profile_url'] = profile_url
     connection_dict['occupation'] = occupation
     connection_dict['connected_on'] = connected_on
