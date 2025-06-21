@@ -1,11 +1,11 @@
 # contact_utils.py
 from typing import List, Dict, Any
 
-CLASS_CONTACT_INFO_BIRTHDAY = "IAMzsKXcnLODYWqCzxgiQWMZrhvsEFipg t-14 t-black t-normal"
+CLASS_CONTACT_INFO_BIRTHDAY = "BwHROIzUvQZFhVyTOaguiiaAtMFznrCzUg t-14 t-black t-normal"
 CALSS_CONTACT_INFO_WEBSITE = "pv-contact-info__contact-link link-without-visited-state"
 CALSS_CONTACT_INFO_PHONE = "t-14 t-black t-normal"
 
-def parse_contact_info_sections(contact_info_sections: List) -> Dict[str, Any]:
+def parse_contact_info_sections(contact_info_sections: List, full_name: str) -> Dict[str, Any]:
     """
     Parsuje listę sekcji kontaktowych i zwraca:
       - contact_info: słownik z kluczami 'profile', 'phone', 'email', 'address', 'connected_on'
@@ -30,6 +30,8 @@ def parse_contact_info_sections(contact_info_sections: List) -> Dict[str, Any]:
         header = section.find('h3').text.strip()
         if "Profile" in header:
             header = 'Profile'
+        if "Websites" in header:
+            header = 'Website'
 
         if header in extractors:
             key, extractor = extractors[header]
@@ -38,7 +40,7 @@ def parse_contact_info_sections(contact_info_sections: List) -> Dict[str, Any]:
             except Exception as e:
                 # w razie błędu ekstrakcji, zachowaj pustą wartość
                 value = ''
-                print('Warning: nie udało się wyciągnąć ' + header + ':', e)
+                print(f'Warning {full_name}: nie udało się wyciągnąć ' + header + ':', e)
             contact_info[key] = value
         else:
             unhandled.append(header)
