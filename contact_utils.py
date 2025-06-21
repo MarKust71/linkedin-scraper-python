@@ -2,25 +2,35 @@
 from typing import List, Dict, Any
 
 CLASS_CONTACT_INFO_BIRTHDAY = "BwHROIzUvQZFhVyTOaguiiaAtMFznrCzUg t-14 t-black t-normal"
-CALSS_CONTACT_INFO_WEBSITE = "pv-contact-info__contact-link link-without-visited-state"
-CALSS_CONTACT_INFO_PHONE = "t-14 t-black t-normal"
+CLASS_CONTACT_INFO_WEBSITE = "pv-contact-info__contact-link link-without-visited-state"
+CLASS_CONTACT_INFO_PHONE = "t-14 t-black t-normal"
 
 def parse_contact_info_sections(contact_info_sections: List, full_name: str) -> Dict[str, Any]:
     """
     Parsuje listę sekcji kontaktowych i zwraca:
-      - contact_info: słownik z kluczami 'profile', 'phone', 'email', 'address', 'connected_on'
+      - contact_info: słownik z kluczami 'profile', 'phone', 'website', 'email', 'address', 'connected_on'
     """
     extractors = {
-        'Profile':   ('profile',      lambda sec: sec.find('a').text.strip()),
-        'Phone':     ('phone',        lambda sec: sec.find(
-            'span', class_=CALSS_CONTACT_INFO_PHONE).text.strip().split('\n')),
-        'Website':   ('website',      lambda sec: sec.find(
-            'a', class_=CALSS_CONTACT_INFO_WEBSITE)['href'].strip()),
-        'Email':     ('email',        lambda sec: sec.find('a').text.strip()),
-        'Address':   ('address',      lambda sec: sec.find('a').text.strip()),
-        'Connected': ('connected_on', lambda sec: sec.find('span').text.strip()),
-        'Birthday':  ('birthday',     lambda sec: sec.find(
-            'span', class_=CLASS_CONTACT_INFO_BIRTHDAY).text.strip()),
+        'Profile':   ('profile',        lambda sec: sec.find('a').text.strip()),
+        'Phone':   ('phone',            lambda sec: [
+                                            num.strip()
+                                            for span in sec.find_all("span", class_=CLASS_CONTACT_INFO_PHONE)
+                                            for num in span.text.splitlines()
+                                            if num.strip()
+                                        ]
+                    ),
+        'Website':   ('website',        lambda sec: [
+                                            a.get("href", "").strip()
+                                            for a in sec.find_all("a", class_=CLASS_CONTACT_INFO_WEBSITE)
+                                            if a.get("href")
+                                        ]
+                      ),
+        'Email':     ('email',          lambda sec: sec.find('a').text.strip()),
+        'Address':   ('address',        lambda sec: sec.find('a').text.strip()),
+        'Connected': ('connected_on',   lambda sec: sec.find('span').text.strip()),
+        'Birthday':  ('birthday',       lambda sec:
+                                            sec.find('span', class_=CLASS_CONTACT_INFO_BIRTHDAY).text.strip()
+                      ),
     }
 
     contact_info: Dict[str, Any] = {}

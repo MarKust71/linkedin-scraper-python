@@ -106,14 +106,19 @@ driver.get("https://www.linkedin.com/mynetwork/invite-connect/connections")
 
 # #     # klikamy przycisk 'Load more'
 # click_load_more_button(driver)
+# sleep(1)
 # #     # klikamy przycisk 'Load more'
 # click_load_more_button(driver)
+# sleep(1)
 # #     # klikamy przycisk 'Load more'
 # click_load_more_button(driver)
+# sleep(1)
 # #     # klikamy przycisk 'Load more'
 # click_load_more_button(driver)
+# sleep(1)
 # #     # klikamy przycisk 'Load more'
 # click_load_more_button(driver)
+# sleep(1)
 
 # czekamy na załadowanie elementów z klasą CLASS_CONNECTION_BLOCK - zdjęć profilowych
 print("Czekam na załadowanie elementów z klasą CLASS_CONNECTION_BLOCK - zdjęć profilowych...")
