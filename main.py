@@ -1,10 +1,12 @@
 # %%
 # INIT
+import pprint
 import warnings
 
-from utils.db import db_get_seen_connections, db_add_connections
+from utils.db import db_get_seen_connections, db_add_connections, db_get_connection_with_empty_contact_info, \
+    db_update_connection
 from utils.linkedin import login_to_linkedin, go_to_connections
-from utils.linkedin.connections import create_connections_list, extend_connections_list
+from utils.linkedin.connections import create_connections_list, extend_connection, extend_connections_list
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
@@ -22,6 +24,11 @@ if login_to_linkedin(driver):
     print("Zalogowano do LinkedIn.")
 else:
     print("Logowanie do LinkedIn nie powiodło się.")
+
+
+
+# ================================================================================
+# ================================================================================
 
 
 # %%
@@ -45,6 +52,27 @@ connections_list = create_connections_list(connections, seen_connections)
 extend_connections_list(driver, connections_list)
 
 
-## %%
+# %%
 # ——— ZAPIS DO BAZY POSTGRES ———
 db_add_connections(connections_list)
+
+
+# ================================================================================
+# ================================================================================
+# %%
+connection = db_get_connection_with_empty_contact_info()
+extended_connection = extend_connection(driver, connection)
+pprint.pprint(extended_connection)
+
+# ZAPIS DO BAZY POSTGRES
+# Jeśli extended_connection zawiera informacje kontaktowe, aktualizujemy rekord w bazie danych
+if extended_connection["contact_info"]:
+    updated_count = db_update_connection(
+        profile_url=extended_connection["profile_url"],
+        contact_info=extended_connection["contact_info"],
+        location=extended_connection["location"]
+    )
+    print(f"Zaktualizowano {updated_count} rekordów w bazie danych.")
+
+    if updated_count == 0:
+        print("Uwaga: nie zaktualizowano żadnych rekordów. Sprawdź, czy profil URL jest poprawny i czy rekord istnieje w bazie danych.")

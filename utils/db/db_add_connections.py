@@ -32,8 +32,8 @@ def db_add_connections(connections_list):
         cur.execute("""
                     INSERT INTO connections
                     (full_name, first_name, last_name, profile_url,
-                     occupation, connected_on, profile_photo, contact_info)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                     occupation, connected_on, profile_photo, contact_info, location)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
                     ON CONFLICT (profile_url) DO NOTHING;
                     """, (
                         c["full_name"],
@@ -43,7 +43,8 @@ def db_add_connections(connections_list):
                         c["occupation"],
                         dt,
                         Json(c.get("profile_photo", {})),
-                        Json(c.get("contact_info", {}))
+                        Json(c.get("contact_info", {})),
+                        c["location"]
                     ))
     conn.commit()
 

@@ -17,7 +17,6 @@ def create_connections_list(connections, seen_connections):
             first_name, last_name = split_name(full_name)
 
             profile_url = connection.find("a", class_=CLASS_CONNECTION_NAME)["href"]
-
         except Exception as e:
             print("!!! Błąd podczas pobierania imienia i nazwiska lub URL profilu:", e)
             full_name = None

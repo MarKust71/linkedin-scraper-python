@@ -8,17 +8,17 @@ CLASS_CONTACT_INFO_PHONE = "t-14 t-black t-normal"
 def parse_contact_info_sections(contact_info_sections: List, full_name: str) -> Dict[str, Any]:
     """
     Parsuje listę sekcji kontaktowych i zwraca:
-      - contact_info: słownik z kluczami 'profile', 'phone', 'website', 'email', 'address', 'connected_on'
+      - contact_info: słownik z kluczami 'profile', 'phone', 'website', 'email', 'address', 'connected_on', 'birthday
     """
     extractors = {
         'Profile':   ('profile',        lambda sec: sec.find('a').text.strip()),
-        'Phone':   ('phone',            lambda sec: [
+        'Phone':     ('phone',          lambda sec: [
                                             num.strip()
                                             for span in sec.find_all("span", class_=CLASS_CONTACT_INFO_PHONE)
                                             for num in span.text.splitlines()
                                             if num.strip()
                                         ]
-                    ),
+                      ),
         'Website':   ('website',        lambda sec: [
                                             a.get("href", "").strip()
                                             for a in sec.find_all("a", class_=CLASS_CONTACT_INFO_WEBSITE)

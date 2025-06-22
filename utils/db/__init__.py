@@ -1,2 +1,5 @@
 from .db_get_seen_connections import db_get_seen_connections
 from .db_add_connections import db_add_connections
+from .db_get_connection_with_empty_contact_info import db_get_connection_with_empty_contact_info
+from .db_get_all_connections_with_empty_contact_info import db_get_all_connections_with_empty_contact_info
+from .db_update_connection import db_update_connection

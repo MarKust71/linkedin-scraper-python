@@ -30,7 +30,8 @@ def db_get_seen_connections():
                                                            occupation     TEXT,
                                                            connected_on   DATE,
                                                            profile_photo  JSONB,
-                                                           contact_info   JSONB
+                                                           contact_info   JSONB,
+                                                           location       TEXT
                 );
                 """)
     conn.commit()
