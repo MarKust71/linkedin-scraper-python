@@ -8,6 +8,8 @@ from time import sleep
 
 from selenium.webdriver.common.by import By
 
+from utils import wait
+
 
 def login_to_linkedin(driver) -> bool:
     """
@@ -31,6 +33,7 @@ def login_to_linkedin(driver) -> bool:
             password_input.send_keys(os.environ["PASSWORD"])
 
             login_button = driver.find_element(By.XPATH, "//button[@type='submit']")
+            wait()
             login_button.click()
 
             try:

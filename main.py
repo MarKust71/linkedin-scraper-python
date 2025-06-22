@@ -29,11 +29,13 @@ else:
 # pobranie kontaktów z bazy danych, aby uniknąć duplikatów
 seen_connections = db_get_seen_connections()
 
+
+# %%
 # PRZEJŚCIE DO STRONY Z KONTAKTAMI
 connections = go_to_connections(driver)
 
 
-# %%
+## %%
 # tworzymy listę do przechowywania informacji o kontaktach
 connections_list = create_connections_list(connections, seen_connections)
 
@@ -43,6 +45,6 @@ connections_list = create_connections_list(connections, seen_connections)
 extend_connections_list(driver, connections_list)
 
 
-# %%
+## %%
 # ——— ZAPIS DO BAZY POSTGRES ———
 db_add_connections(connections_list)
