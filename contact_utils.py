@@ -1,15 +1,18 @@
 # contact_utils.py
 from typing import List, Dict, Any
 
-CLASS_CONTACT_INFO_BIRTHDAY = "lAJgdklsglWdgwCpJhcZfIzDTSYLYTM t-14 t-black t-normal"
-CLASS_CONTACT_INFO_WEBSITE = "pv-contact-info__contact-link link-without-visited-state"
-CLASS_CONTACT_INFO_PHONE = "t-14 t-black t-normal"
 
-def parse_contact_info_sections(contact_info_sections: List, full_name: str) -> Dict[str, Any]:
+def parse_contact_info_sections(contact_info_sections: List, full_name: str, classes) -> Dict[str, Any]:
     """
     Parsuje listę sekcji kontaktowych i zwraca:
       - contact_info: słownik z kluczami 'profile', 'phone', 'website', 'email', 'address', 'connected_on', 'birthday
     """
+    CLASS_CONTACT_INFO_BIRTHDAY, CLASS_CONTACT_INFO_WEBSITE, CLASS_CONTACT_INFO_PHONE = (
+        classes["CLASS_CONTACT_INFO_BIRTHDAY"],
+        classes["CLASS_CONTACT_INFO_WEBSITE"],
+        classes["CLASS_CONTACT_INFO_PHONE"]
+    )
+
     extractors = {
         'Profile':   ('profile',        lambda sec: sec.find('a').text.strip()),
         'Phone':     ('phone',          lambda sec: [

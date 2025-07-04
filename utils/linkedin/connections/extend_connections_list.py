@@ -6,7 +6,7 @@ from contact_utils import parse_contact_info_sections
 from utils import wait
 
 
-def extend_connections_list(driver, connections_list, classes):
+def extend_connections_list(driver, connections_list, classes, classes_contact_info):
     """
     Extend the connection list with additional information from LinkedIn profiles.
     :param driver:
@@ -48,7 +48,11 @@ def extend_connections_list(driver, connections_list, classes):
         soup = BeautifulSoup(page_source, "html.parser")
         contact_info_sections = soup.find_all("section", class_=CLASS_CONTACT_INFO_SECTION)
 
-        contact_info_dict = parse_contact_info_sections(contact_info_sections, full_name)
+        contact_info_dict = parse_contact_info_sections(
+            contact_info_sections,
+            full_name,
+            classes=classes_contact_info
+        )
         connection["contact_info"] = contact_info_dict
 
         # zamknij zakładkę

@@ -6,11 +6,19 @@ from selenium.webdriver.support import expected_conditions as EC
 from utils import wait
 from contact_utils import parse_contact_info_sections
 
-CLASS_LOCATION = "text-body-small inline t-black--light break-words"
-CLASS_CONTACT_INFO_SECTION = "pv-contact-info__contact-type"
 
+def extend_connection(driver, connection, classes, classes_contact_info):
+    """ Extend a single connection with additional information from LinkedIn profile.
+    :param driver: Selenium WebDriver instance
+    :param connection: Dictionary containing connection information
+    :param classes: Dictionary containing class names for elements
+    :return: Updated connection dictionary with additional information
+    """
+    CLASS_LOCATION, CLASS_CONTACT_INFO_SECTION = (
+        classes["CLASS_LOCATION"],
+        classes["CLASS_CONTACT_INFO_SECTION"]
+    )
 
-def extend_connection(driver, connection):
     profile_url = connection["profile_url"]
     full_name = connection["full_name"]
 
@@ -43,7 +51,11 @@ def extend_connection(driver, connection):
     soup = BeautifulSoup(page_source, "html.parser")
     contact_info_sections = soup.find_all("section", class_=CLASS_CONTACT_INFO_SECTION)
 
-    contact_info_dict = parse_contact_info_sections(contact_info_sections, full_name)
+    contact_info_dict = parse_contact_info_sections(
+        contact_info_sections,
+        full_name,
+        classes=classes_contact_info
+    )
     connection["contact_info"] = contact_info_dict
 
     return connection

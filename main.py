@@ -59,13 +59,21 @@ connections_list = create_connections_list(connections, seen_connections, classe
 
 
 # %%
+classes_contact_info = {
+    "CLASS_CONTACT_INFO_BIRTHDAY": "lAJgdklsglWdgwCpJhcZfIzDTSYLYTM t-14 t-black t-normal",
+    "CLASS_CONTACT_INFO_WEBSITE": "pv-contact-info__contact-link link-without-visited-state",
+    "CLASS_CONTACT_INFO_PHONE": "t-14 t-black t-normal"
+}
+
+
+# %%
 # PRZEJŚCIE DO PROFILI KONTAKTÓW I POBRANIE INFORMACJI KONTAKTOWYCH
 classes = {
     "CLASS_LOCATION": "text-body-small inline t-black--light break-words",
     "CLASS_CONTACT_INFO_SECTION": "pv-contact-info__contact-type",
     "ID_LINK_CONTACT_INFO": "top-card-text-details-contact-info"
 }
-extend_connections_list(driver, connections_list, classes)
+extend_connections_list(driver, connections_list, classes, classes_contact_info)
 
 
 # %%
@@ -77,7 +85,12 @@ db_add_connections(connections_list)
 # ================================================================================
 # %%
 connection = db_get_connection_with_empty_contact_info()
-extended_connection = extend_connection(driver, connection)
+classes = {
+    "CLASS_LOCATION": "text-body-small inline t-black--light break-words",
+    "CLASS_CONTACT_INFO_SECTION": "pv-contact-info__contact-type",
+}
+extended_connection = extend_connection(driver, connection, classes, classes_contact_info)
+
 pprint.pprint(extended_connection)
 
 # ZAPIS DO BAZY POSTGRES
