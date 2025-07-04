@@ -29,5 +29,5 @@ def click_load_more_button(driver):
             print("Nie znaleziono przycisku 'Load more' lub wystąpił błąd:", e)
 
     except Exception as e:
-        print("!!! Nie udało się załadować elementów z klasą CLASS_CONNECTION_BLOCK. Sprawdź klasy CSS.")
+        print("!!! Nie udało się załadować elementów z klasą CLASS_BUTTON_LOAD_MORE. Sprawdź klasy CSS.")
         exit()

@@ -1,11 +1,10 @@
 from name_utils import split_name
 
-CLASS_CONNECTION_NAME = "d2075618 _8ba1fc3a"
-CLASS_CONNECTION_OCCUPATION = ("c3135742 e4709ff1 b15431b0 _99465215 _2b2c6cff fcbad3a4 _0620198f _92decd7d bf1f8d3e "
-                               "_88268f11 d04644ed _28b6abf7 _8a814f8c aad4e596")
-CLASS_CONNECTION_CONNECTED = "c3135742 e4709ff1 _92decd7d bf1f8d3e _88268f11 d04644ed _28b6abf7 _184b7550 aad4e596"
+def create_connections_list(connections, seen_connections, classes):
+    CLASS_CONNECTION_NAME = classes["CLASS_CONNECTION_NAME"]
+    CLASS_CONNECTION_OCCUPATION = classes["CLASS_CONNECTION_OCCUPATION"]
+    CLASS_CONNECTION_CONNECTED = classes["CLASS_CONNECTION_CONNECTED"]
 
-def create_connections_list(connections, seen_connections):
     print("tworzenie listy do przechowywania informacji o kontaktach...")
 
     connections_list = []

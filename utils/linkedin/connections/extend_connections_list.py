@@ -5,12 +5,21 @@ from selenium.webdriver.common.by import By
 from contact_utils import parse_contact_info_sections
 from utils import wait
 
-CLASS_LOCATION = "text-body-small inline t-black--light break-words"
-CLASS_CONTACT_INFO_SECTION = "pv-contact-info__contact-type"
-ID_LINK_CONTACT_INFO = "top-card-text-details-contact-info"
 
+def extend_connections_list(driver, connections_list, classes):
+    """
+    Extend the connection list with additional information from LinkedIn profiles.
+    :param driver:
+    :param connections_list:
+    :param classes:
+    :return:
+    """
+    CLASS_LOCATION, CLASS_CONTACT_INFO_SECTION, ID_LINK_CONTACT_INFO = (
+        classes["CLASS_LOCATION"],
+        classes["CLASS_CONTACT_INFO_SECTION"],
+        classes["ID_LINK_CONTACT_INFO"],
+    )
 
-def extend_connections_list(driver, connections_list):
     for connection in connections_list:
         profile_url = connection["profile_url"]
         full_name = connection["full_name"]

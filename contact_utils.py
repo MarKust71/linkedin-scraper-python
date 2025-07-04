@@ -1,7 +1,7 @@
 # contact_utils.py
 from typing import List, Dict, Any
 
-CLASS_CONTACT_INFO_BIRTHDAY = "BwHROIzUvQZFhVyTOaguiiaAtMFznrCzUg t-14 t-black t-normal"
+CLASS_CONTACT_INFO_BIRTHDAY = "lAJgdklsglWdgwCpJhcZfIzDTSYLYTM t-14 t-black t-normal"
 CLASS_CONTACT_INFO_WEBSITE = "pv-contact-info__contact-link link-without-visited-state"
 CLASS_CONTACT_INFO_PHONE = "t-14 t-black t-normal"
 

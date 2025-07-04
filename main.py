@@ -39,17 +39,33 @@ seen_connections = db_get_seen_connections()
 
 # %%
 # PRZEJŚCIE DO STRONY Z KONTAKTAMI
-connections = go_to_connections(driver)
+classes = {
+    "CLASS_CONNECTION_BLOCK": "_69b58b81 f2865a00 _3521e13b _4cfc03f4 _8cce9d30 _5b608b13 _32ae0e52 ca6f144b "
+                              "_44c1d05b fab8c9e8"
+}
+connections = go_to_connections(driver, classes)
 
 
 ## %%
 # tworzymy listę do przechowywania informacji o kontaktach
-connections_list = create_connections_list(connections, seen_connections)
+classes = {
+    "CLASS_CONNECTION_NAME": "_7587260e _096a665d",
+    "CLASS_CONNECTION_OCCUPATION": "_6280f893 _4217524f _163b424c _1800f1ec _472fd2a9 cb744a73 _78e48e06 "
+                                    "_71e41417 be1ccd22 _84db77a9 _57b56f73 af3a1c87 c14301b7 _190823b7",
+    "CLASS_CONNECTION_CONNECTED": "_6280f893 _4217524f _71e41417 be1ccd22 _84db77a9 _57b56f73 af3a1c87 _8b457770 "
+                                  "_190823b7"
+}
+connections_list = create_connections_list(connections, seen_connections, classes)
 
 
 # %%
 # PRZEJŚCIE DO PROFILI KONTAKTÓW I POBRANIE INFORMACJI KONTAKTOWYCH
-extend_connections_list(driver, connections_list)
+classes = {
+    "CLASS_LOCATION": "text-body-small inline t-black--light break-words",
+    "CLASS_CONTACT_INFO_SECTION": "pv-contact-info__contact-type",
+    "ID_LINK_CONTACT_INFO": "top-card-text-details-contact-info"
+}
+extend_connections_list(driver, connections_list, classes)
 
 
 # %%

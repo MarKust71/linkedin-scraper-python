@@ -13,10 +13,17 @@ DB_NAME     = os.getenv("DB_NAME", "linkedin_scraper")
 DB_USER     = os.getenv("DB_USER", "postgres")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
 
-CLASS_CONNECTION_BLOCK = ("_396fac21 _6339973d dfb572da _8d7fbe02 _218d89ab _2ab12687 _0bbcb5e1 _22150fc8 f130b3fb "
-                          "_4a832557")
 
-def go_to_connections(driver):
+def go_to_connections(driver, classes):
+    """Funkcja przechodzi do strony z kontaktami na LinkedIn i zwraca listę elementów reprezentujących kontakty.
+    Args:
+        driver (WebDriver): Instancja sterownika Selenium.
+        classes (dict): Słownik z klasami CSS do wyszukiwania elementów.
+    Returns:
+        list: Lista elementów reprezentujących kontakty.
+    """
+    CLASS_CONNECTION_BLOCK = classes["CLASS_CONNECTION_BLOCK"]
+
     # TODO: sprawdzenie, czy jesteśmy zalogowani, ew. przekierowanie do logowania
     try:
         driver.find_element(By.ID, "global-nav")
