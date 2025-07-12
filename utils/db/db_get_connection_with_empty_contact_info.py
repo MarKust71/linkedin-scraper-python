@@ -11,7 +11,7 @@ DB_PASSWORD = os.getenv("DB_PASSWORD", "postgres")
 def db_get_connection_with_empty_contact_info():
     """
     Zwraca full_name i profile_url pierwszego rekordu,
-    w którym contact_info = pusty JSON ({}).
+    w którym contact_info = pusty JSON ({}) lub contact_info.birthday = '', lub występuje contact_info.unhandled.
     Jeśli nie ma takiego rekordu, zwraca None.
     """
     print("Odczyt z bazy Postgres: pierwszy wynik z pustym contact_info...")
@@ -29,6 +29,7 @@ def db_get_connection_with_empty_contact_info():
                 FROM connections
                 WHERE contact_info = '{}'::jsonb
                    OR contact_info::jsonb ->> 'birthday' = ''
+                   OR (contact_info::jsonb ->> 'unhandled') IS NOT NULL
                 LIMIT 1;
                 """)
     row = cur.fetchone()
