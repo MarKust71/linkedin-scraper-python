@@ -60,9 +60,10 @@ connections_list = create_connections_list(connections, seen_connections, classe
 
 # %%
 classes_contact_info = {
-    "CLASS_CONTACT_INFO_BIRTHDAY": "lAJgdklsglWdgwCpJhcZfIzDTSYLYTM t-14 t-black t-normal",
+    "CLASS_CONTACT_INFO_BIRTHDAY": "wPCmWMUAafwDSWNLlrZvkXAYgnYzmGBJE t-14 t-black t-normal",
     "CLASS_CONTACT_INFO_WEBSITE": "pv-contact-info__contact-link link-without-visited-state",
-    "CLASS_CONTACT_INFO_PHONE": "t-14 t-black t-normal"
+    "CLASS_CONTACT_INFO_PHONE": "t-14 t-black t-normal",
+    "CLASS_CONTACT_INFO_IM": "XRpFiHajaNzYjdCILtAPWTVclloyI t-14"
 }
 
 

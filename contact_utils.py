@@ -7,10 +7,11 @@ def parse_contact_info_sections(contact_info_sections: List, full_name: str, cla
     Parsuje listę sekcji kontaktowych i zwraca:
       - contact_info: słownik z kluczami 'profile', 'phone', 'website', 'email', 'address', 'connected_on', 'birthday
     """
-    CLASS_CONTACT_INFO_BIRTHDAY, CLASS_CONTACT_INFO_WEBSITE, CLASS_CONTACT_INFO_PHONE = (
+    CLASS_CONTACT_INFO_BIRTHDAY, CLASS_CONTACT_INFO_WEBSITE, CLASS_CONTACT_INFO_PHONE, CLASS_CONTACT_INFO_IM = (
         classes["CLASS_CONTACT_INFO_BIRTHDAY"],
         classes["CLASS_CONTACT_INFO_WEBSITE"],
-        classes["CLASS_CONTACT_INFO_PHONE"]
+        classes["CLASS_CONTACT_INFO_PHONE"],
+        classes["CLASS_CONTACT_INFO_IM"]
     )
 
     extractors = {
@@ -20,20 +21,23 @@ def parse_contact_info_sections(contact_info_sections: List, full_name: str, cla
                                             for span in sec.find_all("span", class_=CLASS_CONTACT_INFO_PHONE)
                                             for num in span.text.splitlines()
                                             if num.strip()
-                                        ]
-                      ),
+                                        ]),
         'Website':   ('website',        lambda sec: [
                                             a.get("href", "").strip()
                                             for a in sec.find_all("a", class_=CLASS_CONTACT_INFO_WEBSITE)
                                             if a.get("href")
-                                        ]
-                      ),
+                                        ]),
         'Email':     ('email',          lambda sec: sec.find('a').text.strip()),
         'Address':   ('address',        lambda sec: sec.find('a').text.strip()),
         'Connected': ('connected_on',   lambda sec: sec.find('span').text.strip()),
         'Birthday':  ('birthday',       lambda sec:
                                             sec.find('span', class_=CLASS_CONTACT_INFO_BIRTHDAY).text.strip()
                       ),
+        'IM':        ('im',             lambda sec: [
+                                            ' '.join(span.text.strip() for span in li.find_all('span'))
+                                            for li in sec.find_all("li", class_=CLASS_CONTACT_INFO_IM)
+                                            if li.find_all('span')
+                                        ]),
     }
 
     contact_info: Dict[str, Any] = {}
