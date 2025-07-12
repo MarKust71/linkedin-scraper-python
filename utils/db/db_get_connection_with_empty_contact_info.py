@@ -28,6 +28,7 @@ def db_get_connection_with_empty_contact_info():
                 SELECT full_name, profile_url, contact_info, location
                 FROM connections
                 WHERE contact_info = '{}'::jsonb
+                   OR contact_info::jsonb ->> 'birthday' = ''
                 LIMIT 1;
                 """)
     row = cur.fetchone()
