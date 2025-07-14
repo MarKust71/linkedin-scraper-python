@@ -1,25 +1,21 @@
 # %%
 # INIT
-import pprint
 import warnings
-
-from utils.db import db_get_seen_connections, db_add_connections, db_get_connection_with_empty_contact_info, \
-    db_update_connection
-from utils.linkedin import login_to_linkedin, go_to_connections
-from utils.linkedin.connections import create_connections_list, extend_connection, extend_connections_list
-
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 from selenium import webdriver
+driver = webdriver.Chrome()
 
 from dotenv import load_dotenv
 load_dotenv(override=True)
 
-driver = webdriver.Chrome()
 
 
 # %%
 # LOGOWANIE DO LINKEDIN
+from utils.linkedin import login_to_linkedin, go_to_connections
+from utils.linkedin.connections import create_connections_list, extend_connection, extend_connections_list
+
 if login_to_linkedin(driver):
     print("Zalogowano do LinkedIn.")
 else:
@@ -34,14 +30,17 @@ else:
 # %%
 # POBIERANIE ZAPISANYCH KONTAKTÓW
 # pobranie kontaktów z bazy danych, aby uniknąć duplikatów
+from utils.db import db_get_seen_connections, db_add_connections, db_get_connection_with_empty_contact_info, \
+    db_update_connection
+
 seen_connections = db_get_seen_connections()
 
 
 # %%
 # PRZEJŚCIE DO STRONY Z KONTAKTAMI
 classes = {
-    "CLASS_CONNECTION_BLOCK": "_69b58b81 f2865a00 _3521e13b _4cfc03f4 _8cce9d30 _5b608b13 _32ae0e52 ca6f144b "
-                              "_44c1d05b fab8c9e8"
+    "CLASS_CONNECTION_BLOCK": "_6df3b7c2 _91fe83fe _0a79f01b _59a6ea63 f93e5492 _67fc2051 _83b7f5b6 _0a654781 "
+                              "_78bfd5e6 a51d95de"
 }
 connections = go_to_connections(driver, classes)
 
@@ -49,11 +48,11 @@ connections = go_to_connections(driver, classes)
 ## %%
 # tworzymy listę do przechowywania informacji o kontaktach
 classes = {
-    "CLASS_CONNECTION_NAME": "_7587260e _096a665d",
-    "CLASS_CONNECTION_OCCUPATION": "_6280f893 _4217524f _163b424c _1800f1ec _472fd2a9 cb744a73 _78e48e06 "
-                                    "_71e41417 be1ccd22 _84db77a9 _57b56f73 af3a1c87 c14301b7 _190823b7",
-    "CLASS_CONNECTION_CONNECTED": "_6280f893 _4217524f _71e41417 be1ccd22 _84db77a9 _57b56f73 af3a1c87 _8b457770 "
-                                  "_190823b7"
+    "CLASS_CONNECTION_NAME": "df72ad54 cd1d52c1",
+    "CLASS_CONNECTION_OCCUPATION": "_5afcfec1 _5018d784 _21eebf2f b40789c1 cea183d6 a02ddb28 _529ba546 _08f6ef57 "
+                                   "_25253058 eac83152 e4a85902 _76097c90 b1f89b43 c7dbebbf",
+    "CLASS_CONNECTION_CONNECTED": "_5afcfec1 _5018d784 _08f6ef57 _25253058 eac83152 e4a85902 _76097c90 _8a5f468c "
+                                  "c7dbebbf"
 }
 connections_list = create_connections_list(connections, seen_connections, classes)
 
@@ -92,7 +91,8 @@ classes = {
 }
 extended_connection = extend_connection(driver, connection, classes, classes_contact_info)
 
-pprint.pprint(extended_connection)
+from pprint import pprint
+pprint(extended_connection)
 
 # ZAPIS DO BAZY POSTGRES
 # Jeśli extended_connection zawiera informacje kontaktowe, aktualizujemy rekord w bazie danych
