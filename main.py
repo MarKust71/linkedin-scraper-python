@@ -10,7 +10,6 @@ from dotenv import load_dotenv
 load_dotenv(override=True)
 
 
-
 # %%
 # LOGOWANIE DO LINKEDIN
 from utils.linkedin import login_to_linkedin, go_to_connections
@@ -85,6 +84,7 @@ db_add_connections(connections_list)
 # ================================================================================
 # %%
 connection = db_get_connection_with_empty_contact_info()
+
 classes = {
     "CLASS_LOCATION": "text-body-small inline t-black--light break-words",
     "CLASS_CONTACT_INFO_SECTION": "pv-contact-info__contact-type",
